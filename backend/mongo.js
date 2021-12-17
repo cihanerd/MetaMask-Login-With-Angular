@@ -4,27 +4,32 @@ mongoose.connect('mongodb+srv://cihanerdogan:GDDb8fUbDlBTi445@cluster0.eapsl.mon
 var Schema = mongoose.Schema;
 var userDataSchema = new Schema({
     name: String,
-    address: String
+    address: String,
+    nonce:Number
 })
 var UserData = mongoose.model('UserData', userDataSchema);
 module.exports = {
-  getUsers: async function getUsers() {
-       let users = await UserData.find();
-       return users;
+    getUsers: async function getUsers() {
+        let users = await UserData.find();
+        return users;
     },
-    
- upsertUser:  function upsertUser(id, user) {
-     console.log(user)
-        UserData.findById(id, (err,doc)=>{
-            if(err){
+
+    upsertUser: function upsertUser(id, user) {
+        console.log(user)
+        UserData.findById(id, (err, doc) => {
+            if (err) {
                 console.log('user not found')
             }
-            doc=new UserData();
-            doc.name=user.name;
-            doc.address=user.address;
+            doc = new UserData();
+            doc.name = user.name;
+            doc.address = user.address;
             doc.save();
         })
+    },
+    getUserNonceWithAdress(){
+        
     }
-  };
+
+};
 
 
