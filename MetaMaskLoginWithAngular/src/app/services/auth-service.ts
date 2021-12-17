@@ -18,7 +18,6 @@ export class AuthService {
         
         
         return from(detectEthereumProvider()).pipe(
-            // Step 1: Request (limited) access to users ethereum account
             switchMap(async (provider) => {
               if (!provider) {
                 throw new Error('Please install MetaMask');

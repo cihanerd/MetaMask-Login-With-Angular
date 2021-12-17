@@ -14,7 +14,8 @@ module.exports = {
     },
     
  adduser:   function addUser() {
-        
+        var data = new userData();
+        data.name
     }
   };
 
