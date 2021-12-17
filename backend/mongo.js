@@ -6,16 +6,24 @@ var userDataSchema = new Schema({
     name: String,
     address: String
 })
-var userData = mongoose.model('UserData', userDataSchema);
+var UserData = mongoose.model('UserData', userDataSchema);
 module.exports = {
   getUsers: async function getUsers() {
-       let users = await userData.find();
+       let users = await UserData.find();
        return users;
     },
     
- adduser:   function addUser() {
-        var data = new userData();
-        data.name
+ upsertUser:  function upsertUser(id, user) {
+     console.log(user)
+        UserData.findById(id, (err,doc)=>{
+            if(err){
+                console.log('user not found')
+            }
+            doc=new UserData();
+            doc.name=user.name;
+            doc.address=user.address;
+            doc.save();
+        })
     }
   };
 

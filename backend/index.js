@@ -3,9 +3,10 @@ const express = require('express')
 const app = express()
 const port = 3000
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-  mongo.getUsers()
+app.get('/', async (req, res) =>  {
+    var users = await mongo.getUsers();
+  res.send(users)
+  
 })
 
 app.listen(port, () => {
@@ -13,7 +14,7 @@ app.listen(port, () => {
 })
 
 app.post("/login", (req,res)=>{
-    mongo.adduser();
+    mongo.upsertUser(null,{name:'testName', address:'testAddress'});
     res.send('test message')
 })
 
