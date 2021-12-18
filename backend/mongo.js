@@ -1,6 +1,8 @@
 var mongo = require('mongodb');
 var eth = require('@metamask/eth-sig-util');
+var jwt = require('jsonwebtoken')
 const mongoose = require('mongoose');
+process.env.TOKEN_KEY='this is secret';
 mongoose.connect('mongodb+srv://cihanerdogan:GDDb8fUbDlBTi445@cluster0.eapsl.mongodb.net/MetaMaskAuthDb?retryWrites=true&w=majority');
 var Schema = mongoose.Schema;
 var userDataSchema = new Schema({
@@ -42,7 +44,14 @@ module.exports = {
                     // update nonce
                     doc.nonce = Math.floor(Math.random() * 1000000).toString();
                     doc.save();
-                    res = 'success';
+                    const token = jwt.sign(
+                        {user_id:address},
+                        process.env.TOKEN_KEY,
+                        {
+                            expiresIn:"2h"
+                        }
+                    );
+                    res=token;
                 } else {
                     // The signature could not be verified
                     res = 'sig invalid';

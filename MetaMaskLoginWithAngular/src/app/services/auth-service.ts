@@ -43,13 +43,13 @@ export class AuthService {
                         ],
                     })
             ),
-            switchMap((sig) =>
-                this.http.post<VerifyResponse>(
+            switchMap(async (sig) => {
+                let token = await this.http.post<VerifyResponse>(
                     'http://localhost:3000/verifySignedMessage',
                     { address: this.ethereum.selectedAddress, signature: sig }
-                )
-            ),
-        );
+                );
+                return token;
+            }));
 
     }
     logout() {

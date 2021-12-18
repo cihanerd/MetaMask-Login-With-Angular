@@ -39,11 +39,13 @@ app.post("/verifySignedMessage", jsonParser, async (req, res) => {
     if (!req.body.address || !req.body.signature ) {
         res.status(400).end();
         return;
-    }
-    
+    }    
     const address = req.body.address;
     const signature = req.body.signature;
     let result = await mongo.verifyUser(address,signature);
+    if (result==='sig invalid'||result==='no data') {
+        res.status(400).end();
+    }
     res.send(result);
     
 })
