@@ -1,8 +1,12 @@
 var mongo = require('./mongo')
+const cors = require('cors');
 const express = require('express')
 var bodyParser = require('body-parser')
 const app = express()
 const port = 3000
+
+app.use(cors())
+
 var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
@@ -21,12 +25,25 @@ app.post("/users", jsonParser, (req, res) => {
     res.send('user added')
 })
 
-app.post("/login", jsonParser,async (req, res) => {
-   if (!req.body.address) {
-       res.status(400).end();
-       return;
-   }
-   const address = req.body.address;
-   let nonce =await mongo.upsertUser(address);
-   res.send(nonce);
+app.post("/getNonceToSign", jsonParser, async (req, res) => {
+    if (!req.body.address) {
+        res.status(400).end();
+        return;
+    }
+    const address = req.body.address;
+    let nonce = await mongo.upsertUser(address);
+    res.send({ nonce: nonce });
+})
+
+app.post("/verifySignedMessage", jsonParser, async (req, res) => {
+    if (!req.body.address || !req.body.signature ) {
+        res.status(400).end();
+        return;
+    }
+    
+    const address = req.body.address;
+    const signature = req.body.signature;
+    let result = await mongo.verifyUser(address,signature);
+    res.send(result);
+    
 })

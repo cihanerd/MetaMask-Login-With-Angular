@@ -1,4 +1,5 @@
-var mongo = require('mongodb')
+var mongo = require('mongodb');
+var eth = require('@metamask/eth-sig-util');
 const mongoose = require('mongoose');
 mongoose.connect('mongodb+srv://cihanerdogan:GDDb8fUbDlBTi445@cluster0.eapsl.mongodb.net/MetaMaskAuthDb?retryWrites=true&w=majority');
 var Schema = mongoose.Schema;
@@ -14,7 +15,7 @@ module.exports = {
     },
 
     upsertUser: async function upsertUser(address) {
-        let res="0";
+        let res = "0";
         await UserData.findById(address).exec().then((doc) => {
             if (!doc) {
                 doc = new UserData();
@@ -22,7 +23,33 @@ module.exports = {
                 doc.nonce = Math.floor(Math.random() * 1000000).toString();
                 doc.save();
             }
-            res= doc.nonce;
+            res = doc.nonce;
+        })
+        return res;
+    },
+
+    verifyUser: async function (address, sig) {
+
+        await UserData.findById(address).exec().then((doc) => {
+            if (doc.nonce) {
+                let existingNonce = doc.nonce;
+                const recoveredAddress = eth.recoverPersonalSignature({
+                    data: `0x${toHex(existingNonce)}`,
+                    signature: sig,
+                });
+                if (recoveredAddress === address) {
+                    // The signature was verified - update the nonce to prevent replay attacks
+                    // update nonce
+                    doc.nonce = Math.floor(Math.random() * 1000000).toString();
+                    doc.save();
+                    res = 'success';
+                } else {
+                    // The signature could not be verified
+                    res = 'sig invalid';
+                }
+            } else {
+                res = 'no data';
+            }
         })
         return res;
     }
@@ -30,8 +57,8 @@ module.exports = {
 };
 
 const toHex = (stringToConvert) =>
-  stringToConvert
-    .split('')
-    .map((c) => c.charCodeAt(0).toString(16).padStart(2, '0'))
-    .join('');
+    stringToConvert
+        .split('')
+        .map((c) => c.charCodeAt(0).toString(16).padStart(2, '0'))
+        .join('');
 
