@@ -21,3 +21,12 @@ app.post("/users", jsonParser, (req, res) => {
     res.send('user added')
 })
 
+app.post("/login", jsonParser,async (req, res) => {
+   if (!req.body.address) {
+       res.status(400).end();
+       return;
+   }
+   const address = req.body.address;
+   let nonce =await mongo.upsertUser(address);
+   res.send(nonce);
+})

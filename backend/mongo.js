@@ -3,9 +3,8 @@ const mongoose = require('mongoose');
 mongoose.connect('mongodb+srv://cihanerdogan:GDDb8fUbDlBTi445@cluster0.eapsl.mongodb.net/MetaMaskAuthDb?retryWrites=true&w=majority');
 var Schema = mongoose.Schema;
 var userDataSchema = new Schema({
-    name: String,
-    address: String,
-    nonce:Number
+    _id: String,
+    nonce: String
 })
 var UserData = mongoose.model('UserData', userDataSchema);
 module.exports = {
@@ -14,20 +13,18 @@ module.exports = {
         return users;
     },
 
-    upsertUser: function upsertUser(id, user) {
-        console.log(user)
-        UserData.findById(id, (err, doc) => {
-            if (err) {
-                console.log('user not found')
+    upsertUser: async function upsertUser(address) {
+        let res="0";
+        await UserData.findById(address).exec().then((doc) => {
+            if (!doc) {
+                doc = new UserData();
+                doc._id = address;
+                doc.nonce = Math.floor(Math.random() * 1000000).toString();
+                doc.save();
             }
-            doc = new UserData();
-            doc.name = user.name;
-            doc.address = user.address;
-            doc.save();
+            res= doc.nonce;
         })
-    },
-    getUserNonceWithAdress(){
-        
+        return res;
     }
 
 };
